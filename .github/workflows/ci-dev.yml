@@ -1,4 +1,4 @@
-name: CI - Dev to UAT (Auto Merge)
+name: CI - Dev to UAT
 
 on:
   push:
@@ -6,11 +6,13 @@ on:
       - dev
 
 jobs:
-  smoke-tests:
+  dev-to-uat:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -19,27 +21,15 @@ jobs:
       - run: pip install uv
       - run: uv sync
 
-      - name: Run smoke tests
+      - name: Smoke tests
         env:
           PYTHONPATH: .
         run: uv run pytest tests/test_smoke.py -v
 
-  merge-dev-to-uat:
-    needs: smoke-tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configure Git
+      - name: Merge dev → uat
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
-      - name: Merge dev → uat
-        run: |
           git checkout uat
           git pull origin uat
           git merge dev --no-ff -m "Auto merge dev → uat"

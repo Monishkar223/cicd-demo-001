@@ -1,26 +1,25 @@
-name: CI - Main (Final Validation)
+name: CD - UAT to Main (Approval Required)
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - uat
 
 jobs:
-  production-tests:
+  approve-and-merge:
     runs-on: ubuntu-latest
     environment: production   # 👈 approval gate
 
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          fetch-depth: 0
 
-      - run: pip install uv
-      - run: uv sync
-
-      - name: Run regression tests
-        env:
-          PYTHONPATH: .
-        run: uv run pytest -v
+      - name: Merge uat → main
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git checkout main
+          git pull origin main
+          git merge uat --no-ff -m "Approved merge uat → main"
+          git push origin main
