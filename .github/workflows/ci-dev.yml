@@ -1,4 +1,4 @@
-name: CI - Dev to UAT
+name: CI - Dev to UAT (Auto Merge)
 
 on:
   push:
@@ -14,12 +14,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      - run: pip install uv
-      - run: uv sync
+      - name: Install deps
+        run: |
+          pip install uv
+          uv sync
 
       - name: Smoke tests
         env:

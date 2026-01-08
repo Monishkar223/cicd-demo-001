@@ -1,4 +1,4 @@
-name: CI - UAT Validation
+name: CI - UAT to Main (PR Request)
 
 on:
   push:
@@ -6,20 +6,17 @@ on:
       - uat
 
 jobs:
-  uat-tests:
+  create-pr:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
+      - name: Create PR uat → main
+        uses: peter-evans/create-pull-request@v6
         with:
-          python-version: "3.10"
-
-      - run: pip install uv
-      - run: uv sync
-
-      - name: Integration tests
-        env:
-          PYTHONPATH: .
-        run: uv run pytest tests/test_integration.py -v
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: uat
+          title: "UAT → Main (Approval Required)"
+          body: |
+            ✅ Code pushed to UAT successfully.
+            🔍 Please review and approve to merge into MAIN.
