@@ -6,9 +6,9 @@ on:
       - main
 
 jobs:
-  prod-tests:
+  production-tests:
     runs-on: ubuntu-latest
-    environment: production   # approval gate
+    environment: production   # 👈 approval gate
 
     steps:
       - uses: actions/checkout@v4

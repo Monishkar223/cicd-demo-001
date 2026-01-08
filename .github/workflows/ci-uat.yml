@@ -36,4 +36,6 @@ jobs:
           base: main
           branch: uat
           title: "Auto PR: UAT → Main"
-          body: "UAT tests passed. Ready for production review."
+          body: |
+            ✅ Integration tests passed on UAT.
+            🚀 Ready for production review.
