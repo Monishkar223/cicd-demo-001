@@ -1,0 +1,54 @@
+name: CI - Dev to UAT (Auto Push)
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run smoke tests
+        env:
+          PYTHONPATH: .
+        run: |
+          uv run pytest tests/test_smoke.py -v
+
+  push-to-uat:
+    needs: smoke-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout full repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Merge dev into uat (handle first-time merge)
+        run: |
+          git fetch origin
+          git checkout uat
+          git pull origin uat
+          git merge dev --no-ff --allow-unrelated-histories -m "Auto-merge dev → uat after smoke tests"
+          git push origin uat
